@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"> </script>
+
+    <style>
+        button
+        {
+            border-radius: 100px;
+            height:80px;
+            width:80px;
+            margin:5px;
+            background-color:lightgray;
+            color:white;
+            font-weight:bold;
+            font-size:15px;
+            padding:5px;
+        }
+        
+        button:hover
+        {
+            border: solid 2px lightblue;
+        }
+        
+        h1{
+            font-size:40px;
+        }
+        
+        #container{
+            display: flex;
+            flex-direction:column;
+            align-items: center;
+        }
+        
+        #button-container
+        {
+            display:flex;
+        }
+        
+        .contact-card{
+            padding:5px;
+            height:100px;
+            width: 200px;
+            border:solid black 1px;
+            margin: 10px;
+        }
+    </style>
+	</head>
+
+	<body>
+	    <div id = container>
+    	    <h1>My Phonebook</h1>
+    	    <div id = button-container>
+        	    <button id = add>Add Contact</button>
+        	    <button id = retrieve>Retrieve Contact</button>
+    	    </div>
+    	    <div id = contact-reveal></div>
+	    </div>
+	    <script>
+            function contact(firstName, lastName, phoneNumber) {
+                this.firstName = firstName;
+                this.lastName = lastName;
+                this.phoneNumber = phoneNumber;
+
+                console.log(firstName);
+                console.log(lastName);
+                console.log(phoneNumber);
+            }
+
+	        function addContact()
+	        {
+                if(!localStorage.phonebook) {
+                    localStorage.setItem("phonebook", JSON.stringify([]));
+                }
+
+                let phonebook = JSON.parse(localStorage.phonebook);
+
+                let firstName = prompt("First name:");
+                let lastName = prompt("Last name:");
+                let phoneNumber = prompt("Phone number:");
+
+                let newContact = new contact(firstName, lastName, phoneNumber);
+
+                phonebook.push(newContact);
+
+                localStorage.setItem("phonebook", JSON.stringify(phonebook));
+	        }
+
+            document.getElementById("add").addEventListener("click", addContact);
+	        
+	        function contactExists(first, last)
+	        {
+                if(!localStorage.phonebook) {
+                    localStorage.setItem("phonebook", JSON.stringify([]));
+                }
+
+                let phonebook = JSON.parse(localStorage.phonebook);
+
+                for(let i = 0; i < phonebook.length; i++) {
+                    if(phonebook[i].firstName.includes(first)) {
+                        return true;
+                    }
+
+                    if(phonebook[i].lastName.includes(last)) {
+                        return true;
+                    }
+                }
+
+                return false;
+	        }
+	        
+	        function retrieveContact(first, last)
+	        {
+                if(!localStorage.phonebook) {
+                    localStorage.setItem("phonebook", JSON.stringify([]));
+                }
+
+                let phonebook = JSON.parse(localStorage.phonebook);
+
+                for(let i = 0; i < phonebook.length; i++) {
+                    console.log(phonebook[i]);
+                    if(phonebook[i].firstName.includes(first) || phonebook[i].lastName.includes(last)) {
+                        let matchingContact = document.createElement("div");
+                        matchingContact.classList.add("contact-card");
+
+                        let matchingContactFirstName = document.createElement("p");
+                        matchingContactFirstName.innerHTML = phonebook[i].firstName;
+                        matchingContact.appendChild(matchingContactFirstName);
+
+                        let matchingContactLastName = document.createElement("p");
+                        matchingContactLastName.innerHTML = phonebook[i].lastName;
+                        matchingContact.appendChild(matchingContactLastName);
+
+                        let matchingContactPhoneNumber = document.createElement("p");
+                        matchingContactPhoneNumber.innerHTML = phonebook[i].phoneNumber;
+                        matchingContact.appendChild(matchingContactPhoneNumber);
+
+                        document.getElementById("contact-reveal").appendChild(matchingContact);
+                    }
+                }
+	        }
+
+            document.getElementById("retrieve").addEventListener("click", function() {
+                let contactReveal = document.getElementById("contact-reveal");
+                while(contactReveal.hasChildNodes()) {
+                    contactReveal.removeChild(contactReveal.firstChild);
+                }
+
+                let searchFirstName = prompt("First name:");
+                let searchLastName = prompt("Last name:");
+
+                retrieveContact(searchFirstName, searchLastName);
+
+                console.log(!contactExists(searchFirstName, searchLastName));
+
+                if(!contactExists(searchFirstName, searchLastName)) {
+                    let addNewContact = prompt("The contact you are searching for cannot be found. Add new contact (yes / no)?");
+
+                    if(addNewContact == "yes") {
+                        addContact();
+                    }
+                }
+            });
+
+            let printContactsBtn = document.createElement("button");
+            printContactsBtn.innerHTML = "Print Contacts";
+
+            function printContacts() {
+                let contactReveal = document.getElementById("contact-reveal");
+                while(contactReveal.hasChildNodes()) {
+                    contactReveal.removeChild(contactReveal.firstChild);
+                }
+
+                if(!localStorage.phonebook) {
+                    localStorage.setItem("phonebook", JSON.stringify([]));
+                }
+
+                let phonebook = JSON.parse(localStorage.phonebook);
+
+                for(let i = 0; i < phonebook.length; i++) {
+                    let contacts = document.createElement("div");
+                    contacts.classList.add("contact-card");
+                    
+                    let contactsFirstName = document.createElement("p");
+                    contactsFirstName.innerHTML = phonebook[i].firstName;
+                    contacts.appendChild(contactsFirstName);
+                    
+                    let contactsLastName = document.createElement("p");
+                    contactsLastName.innerHTML = phonebook[i].lastName;
+                    contacts.appendChild(contactsLastName);
+                    
+                    let contactsPhoneNumber = document.createElement("p");
+                    contactsPhoneNumber.innerHTML = phonebook[i].phoneNumber;
+                    contacts.appendChild(contactsPhoneNumber);
+                    
+                    document.getElementById("contact-reveal").appendChild(contacts);
+                }
+            }
+
+            printContactsBtn.addEventListener("click", printContacts);
+
+            document.getElementById("button-container").appendChild(printContactsBtn);
+	    </script>
+	</body>
+</html>
